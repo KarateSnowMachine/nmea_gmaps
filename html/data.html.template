@@ -1,0 +1,95 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+<script src="__JSON_FILENAME__" type="text/javascript"></script>
+<script language="javascript">
+var lats=[];
+var longs=[];
+
+//coeffs= [0.00014,0.00443,0.05399,0.24197,0.39894,0.24197,0.05399,0.00443,0.00014];
+//coeffs= [0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1];
+var coeffs=[];
+function create_filter(num_samples)
+{
+	coeffs = [];
+	for (i=0; i<num_samples; i++)
+	{
+		coeffs.push(1.0/num_samples);
+	}
+}
+
+function normal_values()
+{
+	latlngs_normal = [];
+	for (i=0; i<lats.length; i++) {
+		latlngs_normal.push(new google.maps.LatLng(lats[i], longs[i]));
+	}
+	return latlngs_normal;
+}
+function gaussian_filter()
+{
+	var latlngs = [];
+	for (i=0; i<lats.length-coeffs.length; i++) {
+		lats_out = 0.0;
+		longs_out = 0.0;
+		for (j=0; j<coeffs.length; j++) {
+			lats_out += lats[j+i] * coeffs[j];
+			longs_out += longs[j+i] * coeffs[j];
+		}
+		latlngs.push(new google.maps.LatLng(lats_out, longs_out));
+	}
+	return latlngs;
+}
+function get_latlngs()
+{
+	for (i=0; i<datax.length-coeffs.length; i++)
+	{
+		point_str = ""+datax[i];
+		fields = point_str.split(",")
+		lats.push(fields[1]);
+		longs.push(fields[2]);
+	}
+}
+var main_line;
+var map_opts;
+var main_line;
+var path_bounds = new google.maps.LatLngBounds(segments_array[0]["points"][0]);
+
+function render_line()
+{
+	for (i=0; i<segments_array.length; i++)
+	{
+		filter_line = new google.maps.Polyline( {path: segments_array[i]["points"], strokeColor: segments_array[i]["color"], strokeWeight: 4, strokeOpacity:0.9});
+		filter_line.setMap(gmap);
+		for (j=0; j< segments_array[i]["points"].length; j++)
+		{
+			path_bounds.extend(segments_array[i]["points"][j]);
+		}
+	}
+}
+
+  // Call this function when the page has been loaded
+var gmap; 
+  function initialize() {
+	map_opts = {mapTypeId: google.maps.MapTypeId.ROADMAP};
+	gmap = new google.maps.Map(document.getElementById("the_map"), map_opts);
+	gmap.fitBounds(path_bounds);
+	render_line();
+	logDiv = document.getElementById("log");
+	logDiv.innerHTML = "<b>Summary:</b></br>"
+	for (i=0; i<summary_strings.length; i++)
+	{
+		logDiv.innerHTML += summary_strings[i] + "</BR>";
+	}
+  }
+
+</script>
+
+</head>
+<body onLoad="initialize()">
+<div id='the_map' style='width: 100%; height:80%'></div>
+<div id='log' style='width: 100%; height:20%; border: 1px solid black; padding:5px;'></div>
+</body>
+</html>
