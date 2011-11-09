@@ -375,11 +375,11 @@ if __name__ == "__main__":
 	starting_point = points[0].get_reverse_geocoding(2)
 	ending_point = points[-1].get_reverse_geocoding(2)
 	print str(starting_point +" to "+ ending_point)
-	json_filename = "html/"
-	json_filename += points[0].timestamp.strftime("%Y_%b_%d_%H.%M");
-	json_filename += "_%s__%s.json"%(starting_point,ending_point)
-	json_file = open(json_filename,"w"); 
-	print "Saving JSON to '"+json_filename+"'";
+	js_filename = "html/"
+	js_filename += points[0].timestamp.strftime("%Y_%b_%d_%H.%M");
+	js_filename += "_%s__%s.js"%(starting_point,ending_point)
+	js_file = open(js_filename,"w"); 
+	print "Saving javascriptto '"+js_filename+"'";
 
 
 	sys.stderr.write("Original points=%d, added=%d\n" % (total_points,added_points));
@@ -400,8 +400,8 @@ if __name__ == "__main__":
 		mid_tmp, slow_tmp = s.slice_velocity_range(ranges[0],ranges[1]);
 		mid_segments = mid_segments + mid_tmp;
 		slow_segments = slow_segments + slow_tmp;
-	json_file.write("var summary_strings = Array();");
-	json_file.write("var segments_array = Array();");
+	js_file.write("var summary_strings = Array();");
+	js_file.write("var segments_array = Array();");
 	combined_length = 0.0
 	combined_points = 0;
 
@@ -411,18 +411,18 @@ if __name__ == "__main__":
 		
 #	sa,sb,sc = segment.slice_largest_constant_velocity_segment(20);
 	for s in fast_segments:
-		json_file.write("segments_array.push(%s);" % s.javascript_string("#00ff00"));
+		js_file.write("segments_array.push(%s);" % s.javascript_string("#00ff00"));
 	for s in mid_segments:
-		json_file.write("segments_array.push(%s);" % s.javascript_string("#ffff00"));
+		js_file.write("segments_array.push(%s);" % s.javascript_string("#ffff00"));
 	for s in slow_segments:
-		json_file.write("segments_array.push(%s);" % s.javascript_string("#ff0000"));
+		js_file.write("segments_array.push(%s);" % s.javascript_string("#ff0000"));
 
-	json_file.write(segment.summary_string("summary_strings.push(\"", "\");\n"));
+	js_file.write(segment.summary_string("summary_strings.push(\"", "\");\n"));
 
 	# write a corresponding html file 
-	html_filename = json_filename.replace("json","html"); 
+	html_filename = js_filename.replace("json","html"); 
 	output_html = open(html_filename,"w");
 	template_html_filename = open("html/data.html.template","r")
-	output_html.write(template_html_filename.read().replace("__JSON_FILENAME__",json_filename[5:]))
+	output_html.write(template_html_filename.read().replace("__JSON_FILENAME__",js_filename[5:]))
 
 	
